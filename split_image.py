@@ -13,21 +13,24 @@ level_to_original_image_size = {
     "0": "5120x2560",
     "1": "10240x5120",
     "2": "20480x10240",
-    "3": "40960x20480"
+    "3": "40960x20480",
+    "4": "81920x40960"
 }
 
 rows_per_level = {
     "0": 5,
     "1": 10,
     "2": 20,
-    "3": 40
+    "3": 40,
+    "4": 80
 }
 
 columns_per_level = {
     "0": 10,
     "1": 20,
     "2": 40,
-    "3": 80
+    "3": 80,
+    "4": 160
 }
 
 # check for dependencies
@@ -89,8 +92,6 @@ for path_to_create in paths_to_create:
     if not path.exists(path_to_create):
         makedirs(path_to_create, mode)
 
-print(listdir())
-print(listdir(LEVEL))
 
 # split up image
 print("\n---Splitting up image into tiles")
@@ -110,10 +111,8 @@ except Exception as err:
     print(err)
     exit(1)
 
-print(listdir("./" + LEVEL))
 # rename and organize images
 images = [f for f in listdir(LEVEL) if path.isfile(path.join(".", LEVEL, f))]
-print(images)
 
 # the first image (00000) is the top left corner, which is (max row, min column)
 # eg for landsat level 0, 00000 -> (4, 0), 00001 -> (4,1)
@@ -123,14 +122,9 @@ for image in images:
     if currentcolumn == columns_per_level[LEVEL]:
         currentcolumn = 0
         currentrow -= 1
-
-    print("image: " + image)
     
     old_image_path = path.join(".", LEVEL, image)
     new_image_path = path.join(".", LEVEL, str(currentrow), str(currentrow) + "_" + str(currentcolumn) + ".png")
-    print("moving image  :  " + old_image_path)
-    print("to  :  " + new_image_path)
-    
     move(old_image_path, new_image_path)
 
     currentcolumn += 1
