@@ -21,18 +21,34 @@ All landsat tiles are assumed to be, and will be scaled to, 512x512 pixels
 At layer 0, the globe is split up into a 5 x 10 grid centered at the Greenwich Meridian, with (0, 0) in Pacific/Antarctica region and (4, 0) covering Alaska. At this level, each square tile covers 36 x 36 degrees
 This is shown visually here: https://www.microimages.com/documentation/TechGuides/78Worldwind.pdf
 From here, each subsequent layer doubles in each direction with the origin of the grid staying the same, i.e.
-layer 0 - 05 x 10 - 36 x 36 degree tiles - overall resolution is 5120 x 2560
-layer 1 - 10 x 20 - 18 x 18 degree tiles - overall resolution is 10240 x 5120
-layer 2 - 20 x 40 - 9 x 9 degree tiles - overall resolution is 20480 x 10240
-layer 3 - 40 x 80 - 4.5 x 4.5 degree tiles - overall resolution is 40960 x 20480
-layer 4 - 80 x 160 - 2.25 x 2.25 degree tiles - overall resolution is 81920 x 40960
+
+| Layer | Grid Size (R x C) | Tile Size (Degrees) | Globe Resolution (Pixels) |
+| ----- | ----------------- | ------------------- | ------------------------- |
+|   0   |       5 x 10      |        36 x 36      |         5120 x 2560       |
+|   1   |      10 x 20      |        18 x 18      |        10240 x 5120       |
+|   2   |      20 x 40      |         9 x 9       |        20480 x 10240      |
+|   3   |      40 x 80      |       4.5 x 4.5     |        40960 x 20480      |
+|   4   |      80 x 160     |      2.25 x 2.25    |        81920 x 40960      |
+
+
+| layer 0 | 05 x 10 - 36 x 36 degree tiles | overall resolution is 5120 x 2560 | 
+| ---| ---| ---| --- |
+
+`layer 1 - 10 x 20 - 18 x 18 degree tiles - overall resolution is 10240 x 5120` \
+layer 2 - 20 x 40 - 9 x 9 degree tiles - overall resolution is 20480 x 10240 \
+layer 3 - 40 x 80 - 4.5 x 4.5 degree tiles - overall resolution is 40960 x 20480 \
+layer 4 - 80 x 160 - 2.25 x 2.25 degree tiles - overall resolution is 81920 x 40960 \
 and so on
+`
 
 Creating a mosaic from USGS landsat tiles will come in the future, but for now my own purposes I've found success using maps from these sources:
 NASA Blue Marble Gallery - Fine resolution images at 20k x 10k geotifs, wide variety of surface scans and dates - https://visibleearth.nasa.gov/collection/1484/blue-marble 
 Huge Earth Maps - Highest resolution images I've been able to find, with 40k x 20k and 80k x 40k pixel geotifs - https://maps.drsys.eu/ 
 Note: the higher resolution, the more accurate your globe will look up close due to less interpolation needed.
-
+| First Header  | Second Header |
+| ------------- | ------------- |
+| Content Cell  | Content Cell  |
+| Content Cell  | Content Cell  |
 
 Usage:
 Clone this script and place a source image in the same directory.
