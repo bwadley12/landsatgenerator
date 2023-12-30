@@ -3,7 +3,7 @@ from sys import argv
 from subprocess import Popen, PIPE
 from shutil import move
 
-VALID_LEVELS = ["0","1","2","3"]  #todo: eventually add support for "4","5","6","7","8","9" once landsat mosaic is done
+VALID_LEVELS = ["0","1","2","3","4"]  #todo: eventually add support for "4","5","6","7","8","9" once landsat mosaic is done
 EXPECTED_ARGUMENT_LENGTH = 3
 LANDSAT_IMAGE_SIZE_PIXELS = "512x512"
 LEVEL = None
