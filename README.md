@@ -43,8 +43,8 @@ tiles /
   split_image.py
   original_image.tif
 
-run the script in this format: python original_image.py <layer> <original_image_name>
-e.g.: python original_image.py 0 original_image.tif
+run the script in this format: python split_image.py <layer> <original_image_name>
+e.g.: python split_image.py 0 original_image.tif
 
 This will:
 1. create a copy of the original image at the correct resolution for the level selected, named original_image_<scaled_dimensions_in_pixels>.png
