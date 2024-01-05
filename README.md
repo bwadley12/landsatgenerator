@@ -36,10 +36,6 @@ Creating a mosaic from USGS landsat tiles will come in the future, but for now m
 NASA Blue Marble Gallery - Fine resolution images at 20k x 10k geotifs, wide variety of surface scans and dates - https://visibleearth.nasa.gov/collection/1484/blue-marble 
 Huge Earth Maps - Highest resolution images I've been able to find, with 40k x 20k and 80k x 40k pixel geotifs - https://maps.drsys.eu/ 
 Note: the higher resolution, the more accurate your globe will look up close due to less interpolation needed.
-| First Header  | Second Header |
-| ------------- | ------------- |
-| Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  |
 
 Usage:
 Clone this script and place a source image in the same directory.
