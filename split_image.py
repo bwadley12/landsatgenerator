@@ -3,6 +3,7 @@ from sys import argv
 from subprocess import Popen, PIPE
 from shutil import move
 
+
 VALID_LEVELS = ["0","1","2","3","4"]  #todo: eventually add support for "4","5","6","7","8","9" once landsat mosaic is done
 EXPECTED_ARGUMENT_LENGTH = 3
 LANDSAT_IMAGE_SIZE_PIXELS = "512x512"
@@ -10,11 +11,11 @@ LEVEL = None
 ORIGINAL_IMAGE = None
 
 level_to_original_image_size = {
-    "0": "5120x2560",
-    "1": "10240x5120",
-    "2": "20480x10240",
-    "3": "40960x20480",
-    "4": "81920x40960"
+    "0": "5120x512",
+    "1": "10240x512",
+    "2": "20480x512",
+    "3": "40960x512",
+    "4": "81920x512"
 }
 
 rows_per_level = {
@@ -32,6 +33,7 @@ columns_per_level = {
     "3": 80,
     "4": 160
 }
+
 
 # check for dependencies
 try:
@@ -61,25 +63,6 @@ print("creating tiles for level: " + LEVEL)
 print("creating from image: " + ORIGINAL_IMAGE)
 
 
-# resize original image
-print("\n---Resizing the original image---")
-image_output_name = None
-try:
-    image_output_name = ORIGINAL_IMAGE.replace('.png','').replace('.jpg', '').replace('.tiff', '') + "_" + level_to_original_image_size[LEVEL]+".png"
-    resize_cmd = ["magick.exe", 
-                    ORIGINAL_IMAGE, 
-                    "-resize", level_to_original_image_size[LEVEL], 
-                    image_output_name]
-    print("executing the following command to imagemagick:\n" + ' '.join(resize_cmd))
-    resize_proc = Popen(resize_cmd, stdout=PIPE)
-    resize_proc.wait()
-
-except Exception as err:
-    print("error encountered in resize:")
-    print(err)
-    exit(1)
-
-
 # set up file structure
 paths_to_create = []
 thisrow = 0
@@ -93,39 +76,90 @@ for path_to_create in paths_to_create:
         makedirs(path_to_create, mode)
 
 
-# split up image
-print("\n---Splitting up image into tiles")
+# split up into rows to help processing time
+mode = 0o666
+if not path.exists("tmp"):
+    makedirs("tmp", mode)
 try:
-    split_cmd = ["magick.exe",
-                 image_output_name,
-                 "+repage",
-                 "-crop", LANDSAT_IMAGE_SIZE_PIXELS,
-                 LEVEL + "/%05d.png"
+    row_split_command = ["magick.exe",
+                        "convert",
+                        ORIGINAL_IMAGE,
+                        "+repage",
+                        "-crop",  "1x" + str(rows_per_level[LEVEL]) + "@",
+                        LEVEL + "/%03d.png"
     ]
-    print("executing the following command to imagemagick:\n" + ' '.join(split_cmd))
-    split_proc = Popen(split_cmd, stdout=PIPE)
-    split_proc.wait()
+    print("executing the following command to imagemagick:\n" + ' '.join(row_split_command))
+    row_split_proc = Popen(row_split_command, stdout=PIPE)
+    row_split_proc.wait()
 
 except Exception as err:
-    print("error encountered in tiling:")
+    print("error encountered in splitting into rows:")
     print(err)
     exit(1)
 
-# rename and organize images
-images = [f for f in listdir(LEVEL) if path.isfile(path.join(".", LEVEL, f))]
+row_images = [f for f in listdir(LEVEL) if path.isfile(path.join(".", LEVEL, f))]
+print(row_images)
 
-# the first image (00000) is the top left corner, which is (max row, min column)
-# eg for landsat level 0, 00000 -> (4, 0), 00001 -> (4,1)
-currentrow = rows_per_level[LEVEL] - 1
-currentcolumn = 0
-for image in images:
-    if currentcolumn == columns_per_level[LEVEL]:
-        currentcolumn = 0
-        currentrow -= 1
-    
-    old_image_path = path.join(".", LEVEL, image)
-    new_image_path = path.join(".", LEVEL, str(currentrow), str(currentrow) + "_" + str(currentcolumn) + ".png")
-    move(old_image_path, new_image_path)
 
-    currentcolumn += 1
+row_increment = 0 
+while row_increment < len(row_images):
+    corrected_row_num = len(row_images) - 1 - row_increment
 
+    this_row_image_to_split = row_images[row_increment]
+    print("splitting up image:  " + this_row_image_to_split)
+
+    try:
+        col_split_command = ["magick.exe",
+                            "convert",
+                            LEVEL + "/" + this_row_image_to_split,
+                            "+repage",
+                            "-crop",   str(columns_per_level[LEVEL]) + "x1" + "@",
+                            LEVEL + "/" + str(corrected_row_num) + "/%04d.png"
+        ]
+        print("executing the following command to imagemagick:\n" + ' '.join(row_split_command))
+        col_split_proc = Popen(col_split_command, stdout=PIPE)
+        col_split_proc.wait()
+    except Exception as err:
+        print("error encountered in splitting rows into tiles:")
+        print(err)
+        exit(1)
+
+    row_increment += 1
+
+
+# resize and rename tiles
+row_increment = 0 
+while row_increment < len(row_images):
+    images_to_resize_and_rename = [f for f in listdir(LEVEL + "/" + str(row_increment)) if path.isfile(path.join(".", LEVEL, str(row_increment), f))]
+    print("images in row number " + str(row_increment) + ":   ")
+
+    column_increment = 0
+    while column_increment < len(images_to_resize_and_rename):
+        image = images_to_resize_and_rename[column_increment]
+        print(image)
+        try:
+            resize_cmd = ["magick.exe", 
+                          "mogrify", 
+                          "-resize", LANDSAT_IMAGE_SIZE_PIXELS,
+                          LEVEL + "/" + str(row_increment) + "/" + image
+            ]
+            
+            print("executing the following command to imagemagick:\n" + ' '.join(resize_cmd))
+            resize_proc = Popen(resize_cmd, stdout=PIPE)
+            resize_proc.wait()
+
+        except Exception as err:
+            print("error encountered in resize:")
+            print(err)
+            exit(1)
+
+        # rename and organize images
+        # the first image (00000) is the top left corner, which is (max row, min column)
+        # eg for landsat level 0, 00000 -> (4, 0), 00001 -> (4,1)
+        old_image_path = path.join(".", LEVEL, str(row_increment), image)
+        new_image_path = path.join(".", LEVEL, str(row_increment), str(row_increment) + "_" + str(column_increment) + ".png")
+        move(old_image_path, new_image_path)
+
+        column_increment += 1
+
+    row_increment += 1
