@@ -30,16 +30,7 @@ From here, each subsequent layer doubles in each direction with the origin of th
 |   3   |      40 x 80      |       4.5 x 4.5     |        40960 x 20480      |
 |   4   |      80 x 160     |      2.25 x 2.25    |        81920 x 40960      |
 
-
-| layer 0 | 05 x 10 - 36 x 36 degree tiles | overall resolution is 5120 x 2560 | 
-| ---| ---| ---| --- |
-
-`layer 1 - 10 x 20 - 18 x 18 degree tiles - overall resolution is 10240 x 5120` \
-layer 2 - 20 x 40 - 9 x 9 degree tiles - overall resolution is 20480 x 10240 \
-layer 3 - 40 x 80 - 4.5 x 4.5 degree tiles - overall resolution is 40960 x 20480 \
-layer 4 - 80 x 160 - 2.25 x 2.25 degree tiles - overall resolution is 81920 x 40960 \
 and so on
-`
 
 Creating a mosaic from USGS landsat tiles will come in the future, but for now my own purposes I've found success using maps from these sources:
 NASA Blue Marble Gallery - Fine resolution images at 20k x 10k geotifs, wide variety of surface scans and dates - https://visibleearth.nasa.gov/collection/1484/blue-marble 
