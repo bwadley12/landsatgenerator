@@ -4,8 +4,9 @@ import requests
 import shutil
 from concurrent.futures import ThreadPoolExecutor
 
-VALID_LEVELS = ["0","1","2","3","4","5","6","7","8","9"] 
-EXPECTED_ARGUMENT_LENGTH = 2
+VALID_LEVELS = ["0","1","2","3","4","5","6","7","8","9"]
+VALID_LAYER_NAMES = ["bluemarble","landsat","night"]
+EXPECTED_ARGUMENT_LENGTH = 3
 LEVEL = None
 
 rows_per_level = {
@@ -47,6 +48,12 @@ degrees_per_image_per_level = {
     "9": 0.0703125
 }
 
+layername_to_wms_capabilities = {
+    "bluemarble":"BlueMarble-200405" ,
+    "landsat":"BlueMarble-200405,esat",
+    "night":"earthatnight"
+}
+
 URL = 'https://worldwind25.arc.nasa.gov/wms'
 HEADERS = {'content-type': 'image/png'}
 
@@ -82,10 +89,13 @@ def getImage(URL, parameters, HEADERS, image_name):
 if len(argv) > EXPECTED_ARGUMENT_LENGTH:
     print("too many arguments given")
 elif len(argv) < EXPECTED_ARGUMENT_LENGTH:
-    print("not enough arguments, choose a level from [0 - 9]")
+    print("not enough arguments, choose a level from [0 - 9] and a wms layer of bluemarble, landsat, or night")
 else: 
-    if(argv[1] in VALID_LEVELS):
+    if(argv[1] in VALID_LEVELS and argv[2] in VALID_LAYER_NAMES):
         LEVEL = argv[1]
+        LAYER_NAME = layername_to_wms_capabilities[argv[2]]
+        parameters["layers"] = LAYER_NAME
+
     else:
         print("invalid level given, choose a level from [0 - 9]")
 
@@ -94,11 +104,11 @@ if(LEVEL == None):
 
 
 # set up file structure
-print("building tiles for level: " + LEVEL)
+print("building tiles for level: " + LEVEL + " using wms layer " + LAYER_NAME)
 paths_to_create = []
 thisrow = 0
 while thisrow < rows_per_level[LEVEL]:
-    paths_to_create.append(path.join(".", LEVEL, str(thisrow)))
+    paths_to_create.append(path.join(".", LAYER_NAME, LEVEL, str(thisrow)))
     thisrow += 1
 
 mode = 0o666
@@ -119,7 +129,7 @@ with ThreadPoolExecutor(max_workers = 100) as e:
             upper_long = lower_long + degrees_per_image_per_level[LEVEL]
             bbox = str(lower_lat) + "\," + str(lower_long) + "\," + str(upper_lat) + "\," + str(upper_long)
             parameters["bbox"] = bbox
-            image_name = path.join(".", LEVEL, str(thisrow), str(thisrow) + "_" + str(thiscolumn) + ".png")
+            image_name = path.join(".", LAYER_NAME, LEVEL, str(thisrow), str(thisrow) + "_" + str(thiscolumn) + ".png")
 
             e.submit(getImage, URL, dict(parameters), HEADERS, image_name)
                 
