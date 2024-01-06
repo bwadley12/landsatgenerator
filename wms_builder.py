@@ -4,7 +4,7 @@ import requests
 import shutil
 from concurrent.futures import ThreadPoolExecutor
 
-VALID_LEVELS = ["0","1","2","3","4","5","6"] 
+VALID_LEVELS = ["0","1","2","3","4","5","6","7","8","9"] 
 EXPECTED_ARGUMENT_LENGTH = 2
 LEVEL = None
 
@@ -15,7 +15,10 @@ rows_per_level = {
     "3": 40,
     "4": 80,
     "5": 160,
-    "6": 320
+    "6": 320,
+    "7": 640,
+    "8": 1280,
+    "9": 2560
 }
 
 columns_per_level = {
@@ -25,7 +28,10 @@ columns_per_level = {
     "3": 80,
     "4": 160,
     "5": 320,
-    "6": 640
+    "6": 640,
+    "7": 1280,
+    "8": 2560,
+    "9": 5120
 }
 
 degrees_per_image_per_level = {
@@ -35,7 +41,10 @@ degrees_per_image_per_level = {
     "3": 4.5,
     "4": 2.25,
     "5": 1.125,
-    "6": 0.5625
+    "6": 0.5625,
+    "7": 0.28125,
+    "8": 0.140625,
+    "9": 0.0703125
 }
 
 URL = 'https://worldwind25.arc.nasa.gov/wms'
