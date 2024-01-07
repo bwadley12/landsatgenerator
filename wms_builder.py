@@ -108,7 +108,7 @@ print("building tiles for level: " + LEVEL + " using wms layer " + LAYER_NAME)
 paths_to_create = []
 thisrow = 0
 while thisrow < rows_per_level[LEVEL]:
-    paths_to_create.append(path.join(".", LAYER_NAME, LEVEL, str(thisrow)))
+    paths_to_create.append(path.join(".", argv[2], LEVEL, str(thisrow)))
     thisrow += 1
 
 mode = 0o666
@@ -129,7 +129,7 @@ with ThreadPoolExecutor(max_workers = 100) as e:
             upper_long = lower_long + degrees_per_image_per_level[LEVEL]
             bbox = str(lower_lat) + "\," + str(lower_long) + "\," + str(upper_lat) + "\," + str(upper_long)
             parameters["bbox"] = bbox
-            image_name = path.join(".", LAYER_NAME, LEVEL, str(thisrow), str(thisrow) + "_" + str(thiscolumn) + ".png")
+            image_name = path.join(".", argv[2], LEVEL, str(thisrow), str(thisrow) + "_" + str(thiscolumn) + ".png")
 
             e.submit(getImage, URL, dict(parameters), HEADERS, image_name)
                 
